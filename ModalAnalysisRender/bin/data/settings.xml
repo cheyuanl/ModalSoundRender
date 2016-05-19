@@ -1,0 +1,18 @@
+<group>
+	<int_slider>0</int_slider>
+	<float_slider>60.9939</float_slider>
+	<toggle>0</toggle>
+<group/>
+<impact_y>1</impact_y>
+<width__m__>10</width__m__>
+	<height__m__>10</height__m__>
+	<Mode_x_>4</Mode_x_>
+	<Mode_y_>5</Mode_y_>
+	<enable_superposition>0</enable_superposition>
+	<impact_x__m_>5</impact_x__m_>
+	<impact_y__m_>5</impact_y__m_>
+	<scale>200</scale>
+	<material_damping>0.00314159</material_damping>
+	<global_damping>1</global_damping>
+	<delta_t__sec_>0.000369713</delta_t__sec_>
+</group>

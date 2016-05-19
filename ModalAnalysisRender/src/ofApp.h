@@ -2,12 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
-#include "ofxAssimpModelLoader.h"
-
-#undef PI
-#undef TWO_PI
-#include "../lib/stk/header/SineWave.h"
-#include "MassSpringObj.h"
 #include "RectMembrane.h"
 
 class ofApp : public ofBaseApp{
@@ -29,7 +23,6 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
-    
 private:
     ofMesh mesh;
     ofEasyCam cam;
@@ -37,7 +30,7 @@ private:
     ofLight pointLight2;
     ofMaterial material;
     ofxPanel gui;
-
+    ofSoundPlayer soundPlayer;
     
     ofxIntSlider xMode;
     ofxIntSlider yMode;
@@ -45,16 +38,12 @@ private:
     ofxFloatSlider height;
     ofxFloatSlider xImpactLocation;
     ofxFloatSlider yImpactLocation;
-    ofxFloatSlider mag;
+    ofxFloatSlider scale;
+    ofxFloatSlider globalDecay;
+    ofxFloatSlider materialDecay;
     ofxFloatSlider delta;
-    ofxToggle pureMode;
     
+    ofxToggle enableSuperPosition;
     
     RectMembrane* rect;
-    ofxAssimpModelLoader model;
-    MassSpringObj msObj;
-
-    
-
-		
 };

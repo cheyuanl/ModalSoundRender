@@ -1,32 +1,27 @@
-//#include <cmath>
-#include "constant.h"
 #include "ofApp.h"
-#include "../lib/stk/header/RtWvOut.h"
-
-
-
+#include <boost/filesystem.hpp>
 //--------------------------------------------------------------
+/*
+ */
 
 void ofApp::setup()
 {
-
-    
+    // setup gui
     gui.setup();
+    gui.add(width.setup("width (m) ", 10, 0.0, 10));
+    gui.add(height.setup("height (m) ", 10, 0.0, 10));
+    gui.add(xMode.setup("Mode x ", 1, 1, Nf));
+    gui.add(yMode.setup("Mode y ", 1, 1, Nf));
+    gui.add(enableSuperPosition.setup("enable superposition", true));
+    gui.add(xImpactLocation.setup("impact x (m)", 3, 0.0, 10));
+    gui.add(yImpactLocation.setup("impact y (m)", 4, 0.0, 10));
+    gui.add(scale.setup("scale", 200, 0.0, 400));
+    gui.add(materialDecay.setup("material damping", M_PI/1000, 1/100000, M_PI/32));
+    gui.add(globalDecay.setup("global damping", 1, 0.001, 10));
+    gui.add(delta.setup("delta t (sec)", 1E-5, 1E-6, 1E-2));
     
-    gui.add(width.setup("width (m)", 10, 0.0, 10));
-    gui.add(height.setup("height (m)", 10, 0.0, 10));
-    gui.add(xMode.setup("xMode (natrual number)", 1, 1, Nf));
-    gui.add(yMode.setup("yMode (natrual number)", 1, 1, Nf));
-    gui.add(xImpactLocation.setup("impact location x (m)", 0.3, 0.0, 10));
-    gui.add(yImpactLocation.setup("impact location y (m)", 0.4, 0.0, 10));
-    gui.add(pureMode.setup("pureMode", true));
-    gui.add(mag.setup("magnify", 100, 0.0, 10000));
-    gui.add(delta.setup("delta t", 0.000001, 0.000000001, 0.001));
-    
-
+    // setup lighting
     ofSetVerticalSync(true);
-    
-    // set lighting
     ofSetSmoothLighting(true);
     pointLight.setDiffuseColor(ofColor::darkSlateBlue);
     pointLight.setSpecularColor(ofColor::darkSlateBlue);
@@ -35,82 +30,56 @@ void ofApp::setup()
     pointLight.setPosition(100, 0, 100);
     pointLight.setPosition(0, 100, 0);
     
-    material.setShininess(100);
+    // setup material
+    material.setShininess(10);
     material.setSpecularColor(ofFloatColor(0.8, 0.8, 0.8));
-    material.setAmbientColor(ofFloatColor(0.3 , 0,3, 0.3));
+    material.setAmbientColor(ofFloatColor(0.6 , 0,6, 0.6));
     material.setEmissiveColor(ofFloatColor(0.3, 0.3, 0.3));
     material.setDiffuseColor(ofFloatColor(0.3, 0.3, 0.3));
-    
 
-    // Load rectMembrane
+    // load rectMembrane
     rect = new RectMembrane(width, height);
+    rect->resetTime();
     rect->setLxLy(width, height);
     ofLog(OF_LOG_NOTICE, "computing natrual freq matrix...");
-    rect->computeNatrualFreq();
+    rect->computeNaturalFreq();
     ofLog(OF_LOG_NOTICE, "done");
-    ofLog(OF_LOG_NOTICE, "computing Modal Map...");
-    rect->computeModalMap();
-    ofLog(OF_LOG_NOTICE, "done");
-    ofLog(OF_LOG_NOTICE, "computing Impuse Response...");
-    rect->computeImpulseResponse(xImpactLocation, yImpactLocation, 1);
-    rect->reset();
+    ofLog(OF_LOG_NOTICE, "computing impuse response...");
+    rect->computeImpulseResponse(xImpactLocation, yImpactLocation);
+    rect->updateMesh(xMode, yMode, mesh, delta, scale, enableSuperPosition);
     rect->synthesis();
     ofLog(OF_LOG_NOTICE, "done");
-    if (!model.loadModel("/Users/LiangKevin/Google_Drive/CMU/ModalSoundRender/ModalAnalysisRender/mesh/grid10.obj"))
-    {
-        printf("load model not succeed\n");
-    }
-    mesh = model.getMesh(0);
-    for (auto v : mesh.getVertices())
-    {
-        std::cout << "mesh vertex: " <<  v << std::endl;
-    }
-    
-    for (int i = 0; i < mesh.getIndices().size() / 3; i++)
-    {
-        std::cout << "mesh indices " << ofVec3f(mesh.getIndices()[3 * i], mesh.getIndices()[3 * i + 1], mesh.getIndices()[3 * i + 2]) << std::endl;
-    }
-    std::cout << "num of vertcies : " << mesh.getVertices().size() << std::endl;
-    std::cout << "num of edges : " << mesh.getIndices().size() << std::endl;
-    
-    
-
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
-    rect->updateMesh(xMode, yMode, mesh, delta, pureMode, mag);
-
+    rect->setLxLy(width, height);
+    rect->setMaterialDecay(materialDecay);
+    rect->setGlobalDecay(globalDecay);
+    rect->updateMesh(xMode, yMode, mesh, delta, scale, enableSuperPosition);
 }
 
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-
-    
     ofBackgroundGradient(ofColor::darkSlateBlue, ofColor::black, OF_GRADIENT_CIRCULAR);
 
     cam.begin();
     ofEnableDepthTest();
-//    model.drawWireframe();
-
     ofEnableLighting();
+    
     pointLight.enable();
     pointLight2.enable();
+    
     material.begin();
-    ofFill();
-    
-    
     mesh.drawWireframe();
-//    mesh.drawFaces();
-//    mesh.drawWireframe();
-//    model.drawFaces();
     material.end();
-    ofDisableDepthTest();
-    ofDisableLighting();
     
+    ofDisableLighting();
+    ofDisableDepthTest();
     cam.end();
+    
     gui.draw();
 
 }
@@ -121,36 +90,27 @@ void ofApp::draw()
 void ofApp::keyPressed(int key){
     if (key == OF_KEY_RETURN)
     {
-        rect->setLxLy(width, height);
+        xImpactLocation.setMax(width);
+        yImpactLocation.setMax(height);
         ofLog(OF_LOG_NOTICE, "computing natrual freq matrix...");
-        rect->computeNatrualFreq();
+        rect->computeNaturalFreq();
         ofLog(OF_LOG_NOTICE, "done");
-        ofLog(OF_LOG_NOTICE, "computing Modal Map...");
-        rect->computeModalMap();
-        ofLog(OF_LOG_NOTICE, "done");
-        ofLog(OF_LOG_NOTICE, "computing Impuse Response...");
-        rect->computeImpulseResponse(xImpactLocation, yImpactLocation, 1);
-        rect->reset();
+        ofLog(OF_LOG_NOTICE, "computing impulse response...");
+        rect->computeImpulseResponse(xImpactLocation, yImpactLocation);
+        rect->resetTime();
         rect->synthesis();
         ofLog(OF_LOG_NOTICE, "done");
-        
+        xImpactLocation = width / 2;
+        yImpactLocation = height / 2;
     }
+    
     if (key == OF_KEY_BACKSPACE)
     {
-        double fs = 44100;
+        std::cout << boost::filesystem::current_path().string() << std::endl;
+        soundPlayer.load(boost::filesystem::current_path().string() + "/../../../data/audiosample.wav");
         ofLog(OF_LOG_NOTICE, "playing...");
-        stk::StkFrames frames(fs * 2, 2);
-        
-        for (int i = 0; i < fs * 2; i++)
-        {
-            frames[2*i] = rect->audioSamples[i];
-            frames[2*i+1] = frames[2*i];
-        }
-        stk::RtWvOut dac(2);
-        dac.tick(frames);
+        soundPlayer.play();
         ofLog(OF_LOG_NOTICE, "done");
-        
-        
     }
 }
 //--------------------------------------------------------------
@@ -175,7 +135,6 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    rect->setLxLy(width, height);
 
 }
 
