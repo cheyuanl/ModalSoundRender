@@ -65,7 +65,7 @@ double RectMembrane::computeSumPsiSquare(double x, double y)
 void RectMembrane::computeImpulseResponse(double x, double y)
 {
     double Q = computeSumPsiSquare(x, y);
-    #pragma omp parallel for schedule(static, 16)
+    #pragma omp parallel for
     for (int i = 0; i < Nf * Nf; i++)
     {
         freqResponse[i] = invNaturalFreq[i] * psi(x, y, i % Nf + 1, i / Nf + 1) / Q;
