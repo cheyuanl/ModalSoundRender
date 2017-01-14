@@ -1,4 +1,4 @@
-# ModalAnalysisRender
+# ModalSoundRender
 CS667 - Simulation Method for Animation and Digital Fabrication
 
 <img src="https://raw.githubusercontent.com/cheyuanl/ModalSoundRender/master/ModalAnalysisRender/img/cover.png"; width="400">
@@ -6,7 +6,7 @@ CS667 - Simulation Method for Animation and Digital Fabrication
 --
 
 ####About:
-**ModalAnalysisRender** is a physical-based sound synthesizer and visualizer. The sound is synthesized base on the analytic solution of a rectangular membrane. The program can visualize the natural mode shape, and superposition of the modal shape given different:
+**ModalSoundRender** is a physical-based sound synthesizer and visualizer. The sound is synthesized base on the analytic solution of a rectangular membrane. The program can visualize the natural mode shape, and superposition of the modal shape given different:
 
 1. Location of impact
 2. Material property
