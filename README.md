@@ -2,7 +2,7 @@
 CS667 - Simulation Method for Animation and Digital Fabrication
 
 <img src="https://raw.githubusercontent.com/cheyuanl/ModalSoundRender/master/ModalAnalysisRender/img/cover.png"; width="400">
-[video link](https://youtu.be/tlQLIJxzDKg)
+[video link](https://youtu.be/YdX7vonAWRY)
 --
 
 ####About:
